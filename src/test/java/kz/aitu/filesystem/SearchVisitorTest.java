@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import kz.aitu.filesystem.model.DirectoryNode;
 import kz.aitu.filesystem.model.FileNode;
@@ -115,9 +116,9 @@ class SearchVisitorTest {
 
     @Test
     void failedRunDoesNotCorruptTheNextRun() {
-        List<Boolean> shouldFail = new java.util.ArrayList<>(List.of(true));
+        AtomicBoolean shouldFail = new AtomicBoolean(true);
         SearchVisitor visitor = new SearchVisitor(name -> {
-            if (shouldFail.get(0)) {
+            if (shouldFail.get()) {
                 throw new IllegalStateException("criterion failed");
             }
             return true;
@@ -126,7 +127,7 @@ class SearchVisitorTest {
         DirectoryNode root = new DirectoryNode("root").add(nested);
 
         assertThrows(IllegalStateException.class, () -> root.accept(visitor));
-        shouldFail.set(0, false);
+        shouldFail.set(false);
         root.accept(visitor);
 
         assertEquals(List.of("nested/a.txt"), visitor.getMatchingPaths());
