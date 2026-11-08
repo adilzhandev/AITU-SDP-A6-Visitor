@@ -24,10 +24,13 @@ public final class StatisticsVisitor implements Visitor {
         directoryCount++;
         maxDepth = Math.max(maxDepth, depth);
         depth++;
-        for (Element child : directory.getChildren()) {
-            child.accept(this);
+        try {
+            for (Element child : directory.getChildren()) {
+                child.accept(this);
+            }
+        } finally {
+            depth--;
         }
-        depth--;
     }
 
     public int getFileCount() {

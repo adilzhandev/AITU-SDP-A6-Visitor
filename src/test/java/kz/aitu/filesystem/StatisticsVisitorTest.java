@@ -1,6 +1,7 @@
 package kz.aitu.filesystem;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import kz.aitu.filesystem.model.DirectoryNode;
 import kz.aitu.filesystem.model.Element;
@@ -73,6 +74,20 @@ class StatisticsVisitorTest {
         visit(tree);
 
         assertStatistics(3, 4, 3);
+    }
+
+    @Test
+    void failedRunDoesNotCorruptTheNextRun() {
+        DirectoryNode tooDeep = new DirectoryNode("level");
+        for (int level = 0; level < 300_000; level++) {
+            tooDeep = new DirectoryNode("level").add(tooDeep);
+        }
+        DirectoryNode tree = new DirectoryNode("root").add(tooDeep);
+
+        assertThrows(StackOverflowError.class, () -> visit(tree));
+        visit(new FileNode("next.txt", 5));
+
+        assertStatistics(1, 0, 0);
     }
 
     @Test

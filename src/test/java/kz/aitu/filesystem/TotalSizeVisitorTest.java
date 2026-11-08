@@ -1,6 +1,7 @@
 package kz.aitu.filesystem;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import kz.aitu.filesystem.model.DirectoryNode;
 import kz.aitu.filesystem.model.FileNode;
@@ -60,6 +61,20 @@ class TotalSizeVisitorTest {
         tree.accept(visitor);
 
         assertEquals(327, visitor.getTotalSize());
+    }
+
+    @Test
+    void failedRunDoesNotCorruptTheNextRun() {
+        DirectoryNode tooDeep = new DirectoryNode("level");
+        for (int level = 0; level < 300_000; level++) {
+            tooDeep = new DirectoryNode("level").add(tooDeep);
+        }
+        DirectoryNode tree = album().add(new FileNode("a.txt", 100)).add(tooDeep);
+
+        assertThrows(StackOverflowError.class, () -> tree.accept(visitor));
+        new FileNode("next.txt", 5).accept(visitor);
+
+        assertEquals(5, visitor.getTotalSize());
     }
 
     @Test

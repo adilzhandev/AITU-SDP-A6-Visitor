@@ -48,7 +48,7 @@ Visitors own the traversal. Each `visit(DirectoryNode)` loops over `getChildren(
 
 ### Visitor state
 
-Visitor instances are reusable. Each visitor keeps a `depth` counter, and a `visit` call at depth 0 starts a new run and clears earlier results. Results always describe the latest run only, so they do not depend on run order. Getters return values or immutable copies. Instances are not thread-safe.
+Visitor instances are reusable. Each visitor keeps a `depth` counter, and a `visit` call at depth 0 starts a new run and clears earlier results. Results always describe the latest run only, so they do not depend on run order. If a run fails midway, `try/finally` restores the traversal state, so the next run starts clean. Getters return values or immutable copies. Instances are not thread-safe.
 
 ### Paths and depth
 

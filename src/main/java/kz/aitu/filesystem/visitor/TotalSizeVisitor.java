@@ -19,10 +19,13 @@ public final class TotalSizeVisitor implements Visitor {
     public void visit(DirectoryNode directory) {
         resetIfNewRun();
         depth++;
-        for (Element child : directory.getChildren()) {
-            child.accept(this);
+        try {
+            for (Element child : directory.getChildren()) {
+                child.accept(this);
+            }
+        } finally {
+            depth--;
         }
-        depth--;
     }
 
     public long getTotalSize() {
